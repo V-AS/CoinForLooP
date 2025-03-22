@@ -1,28 +1,50 @@
-// src/App.js - Simplified version without authentication
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
-
-// Pages
-import Dashboard from './pages/Dashboard';
-import Expenses from './pages/Expenses';
-import Goals from './pages/Goals';
-import GoalPlanner from './pages/GoalPlanner';
+// frontend/src/App.js
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, NavLink } from 'react-router-dom';
+import Dashboard from './components/Dashboard';
+import GoalPlanner from './components/GoalPlanner';
+import AISummary from './components/AISummary';
+import './styles/global.css';
 
 function App() {
   return (
-    <ChakraProvider>
-      <ColorModeScript initialColorMode="light" />
-      <Router>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/expenses" element={<Expenses />} />
-          <Route path="/goals" element={<Goals />} />
-          <Route path="/goals/:goalId/plan" element={<GoalPlanner />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </Router>
-    </ChakraProvider>
+    <Router>
+      <div className="app">
+        <header className="header">
+          <h1>AI-Powered Budget App</h1>
+        </header>
+        
+        <nav className="nav">
+          <NavLink to="/" className={({ isActive }) => 
+            isActive ? "nav-item active" : "nav-item"
+          }>
+            Dashboard
+          </NavLink>
+          <NavLink to="/goal-planner" className={({ isActive }) => 
+            isActive ? "nav-item active" : "nav-item"
+          }>
+            Goal Planner
+          </NavLink>
+          <NavLink to="/ai-summary" className={({ isActive }) => 
+            isActive ? "nav-item active" : "nav-item"
+          }>
+            AI Summary
+          </NavLink>
+        </nav>
+        
+        <main className="container">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/goal-planner" element={<GoalPlanner />} />
+            <Route path="/ai-summary" element={<AISummary />} />
+          </Routes>
+        </main>
+        
+        <footer style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+          <p>Budget App &copy; {new Date().getFullYear()}</p>
+        </footer>
+      </div>
+    </Router>
   );
 }
 
