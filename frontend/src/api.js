@@ -74,6 +74,16 @@ export const createGoal = async (goalData) => {
   }
 };
 
+export const deleteGoal = async (goalId) => {
+  try {
+    const response = await api.delete(`/goal/${goalId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting goal:', error);
+    throw error;
+  }
+};
+
 // Summary
 export const generateSummary = async (summaryData) => {
   try {

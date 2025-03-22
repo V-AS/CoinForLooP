@@ -1,5 +1,6 @@
 // frontend/src/components/Dashboard.js
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Pie, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -119,14 +120,24 @@ const Dashboard = () => {
     ],
   };
 
+  const mostRecentGoal = goals.length > 0 
+  ? goals.reduce((recentest, goal) => {
+      const goalDate = new Date(goal.deadline);
+      const recentestDate = new Date(recentest.deadline);
+      return goalDate < recentestDate ? goal : recentest;
+    }, goals[0])
+  : null;
+
   return (
     <div>
       <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2>Dashboard</h2>
-        {/* financial goals summary */}
+        {/* current financial goals */}
         {goals.length > 0 && (
           <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeftColor: 'white', marginBottom: '0', padding: '10px' }}>
-            <p> Goal: {goals[0].description} </p>
+            <Link to="/goal-planner#your-financial-goals" style={{ textDecoration: 'none', color: 'var(--primary)', fontWeight: '500' }}>
+              Goal: {mostRecentGoal.description}
+            </Link>
           </div>
         )}
         <div>
@@ -201,25 +212,6 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
-          {/* Goals Section */}
-          {goals.length > 0 && (
-            <div className="card">
-              <h3>Your Financial Goals</h3>
-              {goals.map(goal => (
-                <div key={goal.id} className="summary-card">
-                  <h4>{goal.description}</h4>
-                  <p>Target: ${goal.target_amount.toFixed(2)} by {new Date(goal.deadline).toLocaleDateString()}</p>
-                  {goal.ai_plan && (
-                    <div style={{ backgroundColor: 'var(--secondary)', padding: '10px', marginTop: '10px', borderRadius: '4px' }}>
-                      <h5>AI Savings Plan:</h5>
-                      <p>{goal.ai_plan}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
 
           {/* Recent Transactions */}
           <div className="card">
