@@ -1,9 +1,9 @@
 # inference_bridge/processors/goal_processor.py
 from datetime import datetime
-from client.openai_client import OpenAIClient
-from prompt_builder.prompt_builder import PromptBuilder
-from data.request.goal_request import GoalPlanningRequest
-from data.response.goal_response import GoalPlanningResponse
+from inference_bridge.client.openai_client import OpenAIClient
+from inference_bridge.prompt_builder.prompt_builder import PromptBuilder
+from inference_bridge.data.request.goal_request import GoalPlanningRequest
+from inference_bridge.data.response.goal_response import GoalPlanningResponse
 import logging
 
 logger = logging.getLogger(__name__)

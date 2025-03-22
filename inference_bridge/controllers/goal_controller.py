@@ -1,7 +1,7 @@
 # inference_bridge/controllers/goal_controller.py
-from data.request.goal_request import GoalPlanningRequest
-from data.response.goal_response import GoalPlanningResponse
-from processors.goal_processor import GoalProcessor
+from inference_bridge.data.request.goal_request import GoalPlanningRequest
+from inference_bridge.data.response.goal_response import GoalPlanningResponse
+from inference_bridge.processors.goal_processor import GoalProcessor
 import logging
 
 logger = logging.getLogger(__name__)

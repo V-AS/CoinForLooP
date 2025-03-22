@@ -1,7 +1,7 @@
 # inference_bridge/controllers/summary_controller.py
-from data.request.summary_request import SummaryRequest
-from data.response.summary_response import SummaryResponse
-from processors.summary_processor import SummaryProcessor
+from inference_bridge.data.request.summary_request import SummaryRequest
+from inference_bridge.data.response.summary_response import SummaryResponse
+from inference_bridge.processors.summary_processor import SummaryProcessor
 import logging
 
 logger = logging.getLogger(__name__)

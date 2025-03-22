@@ -1,9 +1,9 @@
 # inference_bridge/processors/summary_processor.py
 from collections import defaultdict
-from client.openai_client import OpenAIClient
-from prompt_builder.prompt_builder import PromptBuilder
-from data.request.summary_request import SummaryRequest
-from data.response.summary_response import SummaryResponse
+from inference_bridge.client.openai_client import OpenAIClient
+from inference_bridge.prompt_builder.prompt_builder import PromptBuilder
+from inference_bridge.data.request.summary_request import SummaryRequest
+from inference_bridge.data.response.summary_response import SummaryResponse
 import logging
 
 logger = logging.getLogger(__name__)

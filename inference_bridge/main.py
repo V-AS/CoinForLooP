@@ -4,12 +4,12 @@ from dotenv import load_dotenv
 import logging
 
 # Import request/response models from data package
-from data.request import GoalPlanningRequest, SummaryRequest
-from data.response import GoalPlanningResponse, SummaryResponse
+from inference_bridge.data.request import GoalPlanningRequest, SummaryRequest
+from inference_bridge.data.response import GoalPlanningResponse, SummaryResponse
 
 # Import controllers
-from controllers.goal_controller import process_goal_planning
-from controllers.summary_controller import process_monthly_summary
+from inference_bridge.controllers.goal_controller import process_goal_planning
+from inference_bridge.controllers.summary_controller import process_monthly_summary
 
 # Setup logging
 logging.basicConfig(
