@@ -43,7 +43,7 @@ const Dashboard = () => {
           getIncome(),
           getGoals()
         ]);
-        
+
         setTransactions(transactionsData);
         setIncome(incomeData.income);
         setGoals(goalsData);
@@ -63,7 +63,7 @@ const Dashboard = () => {
         getTransactions(),
         getIncome()
       ]);
-      
+
       setTransactions(transactionsData);
       setIncome(incomeData.income);
     } catch (error) {
@@ -123,15 +123,21 @@ const Dashboard = () => {
     <div>
       <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2>Dashboard</h2>
+        {/* financial goals summary */}
+        {goals.length > 0 && (
+          <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeftColor: 'white', marginBottom: '0', padding: '10px' }}>
+            <p> Goal: {goals[0].description} </p>
+          </div>
+        )}
         <div>
-          <button 
-            className="btn btn-primary" 
+          <button
+            className="btn btn-primary"
             style={{ marginRight: '10px' }}
             onClick={() => setIsExpenseModalOpen(true)}
           >
             Record Expense
           </button>
-          <button 
+          <button
             className="btn btn-secondary"
             onClick={() => setIsIncomeModalOpen(true)}
           >
@@ -185,10 +191,10 @@ const Dashboard = () => {
               </div>
               <div>
                 <h4>Remaining Budget</h4>
-                <p style={{ 
-                  fontSize: '24px', 
-                  fontWeight: 'bold', 
-                  color: income - totalSpending > 0 ? 'var(--success)' : 'var(--danger)' 
+                <p style={{
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  color: income - totalSpending > 0 ? 'var(--success)' : 'var(--danger)'
                 }}>
                   ${(income - totalSpending).toFixed(2)}
                 </p>
@@ -252,15 +258,15 @@ const Dashboard = () => {
 
       {/* Modals */}
       {isExpenseModalOpen && (
-        <ExpenseModal 
-          onClose={() => setIsExpenseModalOpen(false)} 
+        <ExpenseModal
+          onClose={() => setIsExpenseModalOpen(false)}
           onSave={refreshData}
         />
       )}
-      
+
       {isIncomeModalOpen && (
-        <IncomeModal 
-          onClose={() => setIsIncomeModalOpen(false)} 
+        <IncomeModal
+          onClose={() => setIsIncomeModalOpen(false)}
           onSave={refreshData}
           currentIncome={income}
         />

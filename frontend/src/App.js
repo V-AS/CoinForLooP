@@ -11,7 +11,7 @@ function App() {
     <Router>
       <div className="app">
         <header className="header">
-          <h1>AI-Powered Budget App</h1>
+          <h1>CoinForLoop</h1>
         </header>
         
         <nav className="nav">
