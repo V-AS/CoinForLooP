@@ -1,11 +1,11 @@
-// src/services/api.js
+// src/services/api.js - Simplified version without authentication
 import axios from 'axios';
 
 // Base URL for API requests
 const API_URL = 'http://localhost:5000/api';
 
-// Configure axios to always include credentials
-axios.defaults.withCredentials = true;
+// Configure axios
+axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 // Expenses API
 export const expenseAPI = {
@@ -80,6 +80,19 @@ export const dashboardAPI = {
   getDashboardData: async () => {
     const response = await axios.get(`${API_URL}/dashboard`);
     return response.data;
+  }
+};
+
+// Health check
+export const healthAPI = {
+  checkHealth: async () => {
+    try {
+      const response = await axios.get(`${API_URL}/health`);
+      return response.data.status === 'ok';
+    } catch (error) {
+      console.error('Health check failed:', error);
+      return false;
+    }
   }
 };
 

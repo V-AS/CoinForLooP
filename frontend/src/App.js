@@ -1,4 +1,4 @@
-// src/App.js
+// src/App.js - Simplified version without authentication
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
@@ -8,7 +8,6 @@ import Dashboard from './pages/Dashboard';
 import Expenses from './pages/Expenses';
 import Goals from './pages/Goals';
 import GoalPlanner from './pages/GoalPlanner';
-import Login from './pages/Login';
 
 function App() {
   return (
@@ -16,7 +15,6 @@ function App() {
       <ColorModeScript initialColorMode="light" />
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Dashboard />} />
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/goals" element={<Goals />} />
