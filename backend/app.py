@@ -70,10 +70,17 @@ class Plan(db.Model):
 
 # Helper functions
 def get_current_user():
-    user_id = session.get('user_id')
-    if user_id:
-        return User.query.get(user_id)
-    return None
+    # Find or create a default user for the demo
+    default_user = User.query.filter_by(username="demo_user").first()
+    if not default_user:
+        # Create a default user if none exists
+        default_user = User(
+            username="demo_user",
+            password_hash="demo_password_not_real_hash"
+        )
+        db.session.add(default_user)
+        db.session.commit()
+    return default_user
 
 # AI Service
 def generate_goal_plan(goal, expenses):

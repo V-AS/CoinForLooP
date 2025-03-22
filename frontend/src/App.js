@@ -1,131 +1,29 @@
-// src/services/api.js
-import axios from 'axios';
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 
-// Base URL for API requests
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Pages
+import Dashboard from './pages/Dashboard';
+import Expenses from './pages/Expenses';
+import Goals from './pages/Goals';
+import GoalPlanner from './pages/GoalPlanner';
 
-// Configure axios to include credentials
-axios.defaults.withCredentials = true;
+function App() {
+  return (
+    <ChakraProvider>
+      <ColorModeScript initialColorMode="light" />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/expenses" element={<Expenses />} />
+          <Route path="/goals" element={<Goals />} />
+          <Route path="/goals/:goalId/plan" element={<GoalPlanner />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </ChakraProvider>
+  );
+}
 
-// Auth API
-export const authAPI = {
-  login: async (username, password) => {
-    const response = await axios.post(`${API_URL}/login`, { username, password });
-    return response.data;
-  },
-  
-  register: async (username, password) => {
-    const response = await axios.post(`${API_URL}/register`, { username, password });
-    return response.data;
-  },
-  
-  logout: async () => {
-    const response = await axios.post(`${API_URL}/logout`);
-    return response.data;
-  },
-  
-  getCurrentUser: async () => {
-    const response = await axios.get(`${API_URL}/user`);
-    return response.data;
-  }
-};
-
-// Expenses API
-export const expenseAPI = {
-  getExpenses: async (filters = {}) => {
-    const params = new URLSearchParams();
-    
-    if (filters.category) params.append('category', filters.category);
-    if (filters.startDate) params.append('start_date', filters.startDate);
-    if (filters.endDate) params.append('end_date', filters.endDate);
-    
-    const query = params.toString() ? `?${params.toString()}` : '';
-    const response = await axios.get(`${API_URL}/expenses${query}`);
-    return response.data;
-  },
-  
-  addExpense: async (expense) => {
-    const response = await axios.post(`${API_URL}/expenses`, expense);
-    return response.data;
-  },
-  
-  deleteExpense: async (id) => {
-    const response = await axios.delete(`${API_URL}/expenses/${id}`);
-    return response.data;
-  },
-  
-  getCategories: async () => {
-    const response = await axios.get(`${API_URL}/categories`);
-    return response.data;
-  }
-};
-
-// Goals API
-export const goalAPI = {
-  getGoals: async () => {
-    const response = await axios.get(`${API_URL}/goals`);
-    return response.data;
-  },
-  
-  getGoal: async (id) => {
-    const response = await axios.get(`${API_URL}/goals/${id}`);
-    return response.data;
-  },
-  
-  addGoal: async (goal) => {
-    const response = await axios.post(`${API_URL}/goals`, goal);
-    return response.data;
-  },
-  
-  updateGoal: async (id, goal) => {
-    const response = await axios.put(`${API_URL}/goals/${id}`, goal);
-    return response.data;
-  },
-  
-  deleteGoal: async (id) => {
-    const response = await axios.delete(`${API_URL}/goals/${id}`);
-    return response.data;
-  },
-  
-  getGoalPlan: async (id) => {
-    const response = await axios.get(`${API_URL}/goals/${id}/plan`);
-    return response.data;
-  },
-  
-  generateGoalPlan: async (id) => {
-    const response = await axios.post(`${API_URL}/goals/${id}/plan`);
-    return response.data;
-  }
-};
-
-// Dashboard API
-export const dashboardAPI = {
-  getDashboardData: async () => {
-    const response = await axios.get(`${API_URL}/dashboard`);
-    return response.data;
-  }
-};
-
-// Error handler
-export const handleApiError = (error) => {
-  if (error.response) {
-    // The request was made and the server responded with a status code
-    // that falls out of the range of 2xx
-    return {
-      status: error.response.status,
-      message: error.response.data.error || 'An error occurred'
-    };
-  } else if (error.request) {
-    // The request was made but no response was received
-    return {
-      status: 0,
-      message: 'No response from server. Please check your internet connection.'
-    };
-  } else {
-    // Something happened in setting up the request that triggered an Error
-    return {
-      status: 0,
-      message: error.message || 'An unknown error occurred'
-    };
-  }
-};
+export default App;

@@ -372,4 +372,4 @@ const Goals = () => {
   );
 };
 
-export default { Goals };
+export default Goals;
