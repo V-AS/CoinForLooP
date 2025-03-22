@@ -4,6 +4,9 @@ import axios from 'axios';
 // Base URL for API requests
 const API_URL = 'http://localhost:5000/api';
 
+// Configure axios to always include credentials
+axios.defaults.withCredentials = true;
+
 // Expenses API
 export const expenseAPI = {
   getExpenses: async (filters = {}) => {

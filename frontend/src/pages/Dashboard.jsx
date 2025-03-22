@@ -1,4 +1,3 @@
-
 // src/pages/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import {
@@ -15,7 +14,11 @@ import {
   Divider,
   Badge,
   useColorMode,
-  Progress
+  Progress,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Bar, Doughnut } from 'react-chartjs-2';
@@ -32,6 +35,7 @@ import {
 import Layout from '../components/Layout';
 import Loading from '../components/Loading';
 import { dashboardAPI, handleApiError } from '../services/api';
+import { checkApiConnection } from '../utils/connectionChecker';
 import { format } from 'date-fns';
 
 // Register ChartJS components
@@ -49,6 +53,7 @@ const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isConnected, setIsConnected] = useState(true);
   const { colorMode } = useColorMode();
   
   // Colors for charts
@@ -56,20 +61,38 @@ const Dashboard = () => {
     ? ['#3182CE', '#38B2AC', '#805AD5', '#DD6B20', '#D53F8C', '#718096']
     : ['#4299E1', '#4FD1C5', '#9F7AEA', '#F6AD55', '#ED64A6', '#A0AEC0'];
   
+  // Check API connection
+  const verifyConnection = async () => {
+    const connected = await checkApiConnection();
+    setIsConnected(connected);
+    return connected;
+  };
+  
   // Fetch dashboard data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await dashboardAPI.getDashboardData();
-        setDashboardData(data);
-      } catch (err) {
-        const errorData = handleApiError(err);
-        setError(errorData.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
     
+    try {
+      // First check if we're connected
+      const connected = await verifyConnection();
+      if (!connected) {
+        setLoading(false);
+        return;
+      }
+      
+      const data = await dashboardAPI.getDashboardData();
+      setDashboardData(data);
+    } catch (err) {
+      const errorData = handleApiError(err);
+      setError(errorData.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Load initial data
+  useEffect(() => {
     fetchData();
   }, []);
   
@@ -127,6 +150,40 @@ const Dashboard = () => {
       return monthStr;
     }
   };
+  
+  // If backend is not connected
+  if (!isConnected) {
+    return (
+      <Layout>
+        <Box p={4}>
+          <Alert 
+            status="error" 
+            variant="solid" 
+            flexDirection="column" 
+            alignItems="center" 
+            justifyContent="center" 
+            textAlign="center" 
+            borderRadius="md" 
+            p={6}
+            mb={4}
+          >
+            <AlertIcon boxSize="40px" mr={0} />
+            <AlertTitle mt={4} mb={2} fontSize="lg">
+              Cannot Connect to Backend Server
+            </AlertTitle>
+            <AlertDescription maxWidth="md">
+              <Text mb={4}>
+                Unable to connect to the CoinFlow backend server. Please make sure the backend is running at http://localhost:5000.
+              </Text>
+              <Button onClick={fetchData} colorScheme="white" variant="outline">
+                Retry Connection
+              </Button>
+            </AlertDescription>
+          </Alert>
+        </Box>
+      </Layout>
+    );
+  }
   
   if (loading) {
     return (
@@ -258,6 +315,7 @@ const Dashboard = () => {
             )}
           </Box>
           
+          {/* Rest of the dashboard component remains the same */}
           {/* Expenses by Category Chart */}
           <Box 
             p={5} 

@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Expenses from './pages/Expenses';
 import Goals from './pages/Goals';
 import GoalPlanner from './pages/GoalPlanner';
+import Login from './pages/Login';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <ColorModeScript initialColorMode="light" />
       <Router>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Dashboard />} />
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/goals" element={<Goals />} />

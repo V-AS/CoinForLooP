@@ -4,7 +4,7 @@ import json
 import secrets
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -25,11 +25,17 @@ CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
 # Initialize database
 db = SQLAlchemy(app)
 
-# Set up OpenAI
-# openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
-# OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-3.5-turbo')
-openai_client = 1
-PENAI_MODEL = 2
+# Set up OpenAI - Fix the typo and initialization
+openai_client = None
+OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-3.5-turbo')
+
+try:
+    openai_client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+except Exception as e:
+    print(f"Warning: OpenAI client initialization failed: {e}")
+    # Provide a fallback for development
+    openai_client = None
+
 # Database Models
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -151,29 +157,43 @@ def generate_goal_plan(goal, expenses):
     
     # Get completion from OpenAI
     try:
-        response = openai_client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=[
-                {"role": "system", "content": "You are a financial planning AI assistant."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=800
-        )
-        
-        # Parse the response
-        content = response.choices[0].message.content.strip()
-        
-        # Try to parse as JSON
-        try:
-            result = json.loads(content)
-            return result
-        except json.JSONDecodeError:
-            # Fallback if not valid JSON
+        if openai_client:
+            response = openai_client.chat.completions.create(
+                model=OPENAI_MODEL,
+                messages=[
+                    {"role": "system", "content": "You are a financial planning AI assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=800
+            )
+            
+            # Parse the response
+            content = response.choices[0].message.content.strip()
+            
+            # Try to parse as JSON
+            try:
+                result = json.loads(content)
+                return result
+            except json.JSONDecodeError:
+                # Fallback if not valid JSON
+                return {
+                    "plan_text": content,
+                    "monthly_saving": base_monthly_saving,
+                    "recommendations": ["Save regularly", "Track your expenses", "Look for ways to reduce costs"]
+                }
+        else:
+            # Fallback plan if OpenAI client is not available
             return {
-                "plan_text": content,
+                "plan_text": "Here's a basic savings plan: Save a consistent amount each month to reach your goal. Based on your current expenses and goal details, I recommend saving regularly and tracking your spending to stay on target.",
                 "monthly_saving": base_monthly_saving,
-                "recommendations": ["Save regularly", "Track your expenses", "Look for ways to reduce costs"]
+                "recommendations": [
+                    "Save regularly each month",
+                    "Track your expenses closely",
+                    "Look for opportunities to reduce unnecessary spending",
+                    "Set up automatic transfers to a savings account",
+                    "Review your progress monthly and adjust as needed"
+                ]
             }
             
     except Exception as e:
@@ -186,55 +206,10 @@ def generate_goal_plan(goal, expenses):
         }
 
 # API Routes
-@app.route('/api/register', methods=['POST'])
-def register():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-    
-    if not username or not password:
-        return jsonify({"error": "Username and password required"}), 400
-        
-    if User.query.filter_by(username=username).first():
-        return jsonify({"error": "Username already exists"}), 400
-        
-    new_user = User(
-        username=username,
-        password_hash=generate_password_hash(password)
-    )
-    
-    db.session.add(new_user)
-    db.session.commit()
-    
-    session['user_id'] = new_user.id
-    
-    return jsonify({"message": "User registered successfully", "user_id": new_user.id, "username": username}), 201
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-    
-    user = User.query.filter_by(username=username).first()
-    
-    if not user or not check_password_hash(user.password_hash, password):
-        return jsonify({"error": "Invalid credentials"}), 401
-        
-    session['user_id'] = user.id
-    
-    return jsonify({"message": "Login successful", "user_id": user.id, "username": username}), 200
-
-@app.route('/api/logout', methods=['POST'])
-def logout():
-    session.pop('user_id', None)
-    return jsonify({"message": "Logged out successfully"}), 200
-
+# We're removing all authentication routes since we don't need them
 @app.route('/api/user', methods=['GET'])
 def get_user():
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "Not authenticated"}), 401
     
     return jsonify({
         "id": user.id,
@@ -244,8 +219,6 @@ def get_user():
 @app.route('/api/expenses', methods=['GET', 'POST'])
 def handle_expenses():
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "Not authenticated"}), 401
     
     if request.method == 'POST':
         data = request.json
@@ -304,8 +277,6 @@ def handle_expenses():
 @app.route('/api/expenses/<int:expense_id>', methods=['DELETE'])
 def delete_expense(expense_id):
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "Not authenticated"}), 401
     
     expense = Expense.query.get(expense_id)
     if not expense or expense.user_id != user.id:
@@ -319,8 +290,6 @@ def delete_expense(expense_id):
 @app.route('/api/categories', methods=['GET'])
 def get_categories():
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "Not authenticated"}), 401
     
     # Get unique categories from user's expenses
     categories = db.session.query(Expense.category)\
@@ -340,8 +309,6 @@ def get_categories():
 @app.route('/api/goals', methods=['GET', 'POST'])
 def handle_goals():
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "Not authenticated"}), 401
     
     if request.method == 'POST':
         data = request.json
@@ -381,8 +348,6 @@ def handle_goals():
 @app.route('/api/goals/<int:goal_id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_goal(goal_id):
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "Not authenticated"}), 401
     
     goal = Goal.query.get(goal_id)
     if not goal or goal.user_id != user.id:
@@ -431,8 +396,6 @@ def handle_goal(goal_id):
 @app.route('/api/goals/<int:goal_id>/plan', methods=['GET', 'POST'])
 def handle_goal_plan(goal_id):
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "Not authenticated"}), 401
     
     goal = Goal.query.get(goal_id)
     if not goal or goal.user_id != user.id:
@@ -485,8 +448,6 @@ def handle_goal_plan(goal_id):
 @app.route('/api/dashboard', methods=['GET'])
 def get_dashboard_data():
     user = get_current_user()
-    if not user:
-        return jsonify({"error": "Not authenticated"}), 401
     
     # Get recent expenses
     recent_expenses = Expense.query.filter_by(user_id=user.id)\
@@ -553,6 +514,11 @@ def get_dashboard_data():
         },
         "goals": goals_data
     }), 200
+
+# Simple health check endpoint
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "ok"}), 200
 
 # Create database if it doesn't exist
 with app.app_context():
