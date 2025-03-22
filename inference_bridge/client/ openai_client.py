@@ -1,53 +1,41 @@
-import logging
-from typing import Any, Dict, List, Tuple, Type, TypeVar, Optional
-from openai import AsyncOpenAI, APIError, BadRequestError, RateLimitError
-from openai.types.chat.parsed_chat_completion import ParsedChatCompletion
+# inference_bridge/client/openai_client.py
 import os
-from inference_bridge.exception.inference_exception import (
-    EmptyResponseException,
-    OpenaiInferenceException,
-)
-from petopredict_agent.utils.retry_async import retry_with_exponential_backoff
-from pydantic import BaseModel
+from openai import OpenAI
+import logging
 
-logger: logging.Logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-T = TypeVar("T", bound=BaseModel)
+class OpenAIClient:
+    def __init__(self):
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable not set")
+        
+        self.client = OpenAI(api_key=api_key)
+        self.model = "gpt-4o-mini"  # Use the cost-efficient model as specified
 
-
-class OpenaiClient:
-    def __init__(self) -> None:
-        OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-        self.client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-        self.MODEL = "gpt-4o-mini"
-
-    async def inference(
-        self, messages: List[Dict[str, Any]], response_format: Type[T]
-    ) -> Tuple[ParsedChatCompletion, T]:
+    def generate_text(self, prompt):
+        """
+        Generate text using the OpenAI API
+        
+        Args:
+            prompt: The prompt to send to the API
+            
+        Returns:
+            The generated text response
+        """
         try:
-            completion = await self.run_inference_with_retry(
-                messages=messages, response_format=response_format
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful financial assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.5,
+                max_tokens=1000
             )
-        except (BadRequestError, RateLimitError, APIError) as e:
-            logger.error(f"OpenAI Inference error: {str(e)}", exc_info=True)
-            raise OpenaiInferenceException(message=str(e))
+            
+            return response.choices[0].message.content
         except Exception as e:
-            logger.error(
-                f"Unexpected error during openai inference: {str(e)}", exc_info=True
-            )
-            logger.error(messages)
+            logger.error(f"Error generating text with OpenAI: {e}")
             raise
-
-        gen_result: Optional[T] = completion.choices[0].message.parsed
-        if gen_result is None:
-            raise EmptyResponseException()
-
-        return (completion, gen_result)
-
-    @retry_with_exponential_backoff()
-    async def run_inference_with_retry(
-        self, messages: List[Dict[str, Any]], response_format: Type[T]
-    ) -> ParsedChatCompletion:
-        return await self.client.beta.chat.completions.parse(
-            model=self.MODEL, messages=messages, response_format=response_format
-        )
