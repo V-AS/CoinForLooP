@@ -177,10 +177,6 @@ coinflow/
         └── retry_async.py              # Automatic retry logic for LLM requests
 ```
 
-## License
-
-[MIT License](LICENSE)
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
