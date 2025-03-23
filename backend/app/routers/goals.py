@@ -1,4 +1,5 @@
 # backend/app/routers/goals.py
+from dateutil.relativedelta import relativedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -63,16 +64,26 @@ def create_goal(goal: GoalCreate, db: Session = Depends(get_db), user_id: int = 
     try:
         # Get user income and average spending
         user_income = user.income
+
+        # Get the transaction records for the last 2 months
+        end_date = datetime.now()
+        start_date = end_date - relativedelta(months=2)
         
-        # Calculate average monthly spending
-        current_month = datetime.now().month
-        current_year = datetime.now().year
+        # Query transactions within the time range
         transactions = db.query(models.Transaction).filter(
             models.Transaction.user_id == user_id,
-            models.Transaction.date >= datetime(current_year, current_month, 1)
+            models.Transaction.date >= start_date,
+            models.Transaction.date <= end_date
         ).all()
-        
-        avg_spending = sum(t.amount for t in transactions) if transactions else 0
+
+        transactions_data = [
+            {
+                "amount": t.amount,
+                "category": t.category,
+                "date": t.date.isoformat()
+            }
+            for t in transactions
+        ]
         
         # Prepare data for inference bridge
         goal_data = {
@@ -82,7 +93,7 @@ def create_goal(goal: GoalCreate, db: Session = Depends(get_db), user_id: int = 
             "target_amount": goal.target_amount,
             "deadline": goal.deadline.isoformat(),
             "user_income": user_income,
-            "avg_spending": avg_spending
+            "transactions": transactions_data
         }
         
         # Send to inference bridge
