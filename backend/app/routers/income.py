@@ -1,7 +1,7 @@
 # backend/app/routers/income.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from ..database import get_db
 from .. import models
@@ -10,43 +10,64 @@ router = APIRouter()
 
 # Pydantic models
 class IncomeUpdate(BaseModel):
-    income: float
+    year: int = Field(..., example=2023, description="year")
+    month: int = Field(..., ge=1, le=12, example=10, description="months (1-12)")
+    income: float = Field(..., example=5000.0, description="month income")
 
-class UserIncome(BaseModel):
-    id: int
+class UserIncomeResponse(BaseModel):
+    year: int
+    month: int
     income: float
     
     class Config:
         orm_mode = True
 
-# GET /api/income
-@router.get("/income", response_model=UserIncome)
-def get_income(db: Session = Depends(get_db), user_id: int = 1):
-    # For simplicity, using user_id=1; in production, get from auth
-    user = db.query(models.User).filter(models.User.id == user_id).first()
+@router.get("/income", response_model=UserIncomeResponse)
+def get_income(
+    year: int,
+    month: int,
+    db: Session = Depends(get_db),
+    user_id: int = 1
+):
+    # Query the income records for a specified year and month
+    user_income = db.query(models.UserIncome).filter(
+        models.UserIncome.user_id == user_id,
+        models.UserIncome.year == year,
+        models.UserIncome.month == month
+    ).first()
     
-    if not user:
-        # Create user if doesn't exist
-        user = models.User(id=user_id, income=0.0)
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+    if not user_income:
+        # Returns a default value or throws an error
+        return {"year": year, "month": month, "income": 0.0}
     
-    return user
+    return user_income
 
-# POST /api/income
-@router.post("/income", response_model=UserIncome)
-def update_income(income_update: IncomeUpdate, db: Session = Depends(get_db), user_id: int = 1):
-    user = db.query(models.User).filter(models.User.id == user_id).first()
+@router.post("/income", response_model=UserIncomeResponse)
+def update_income(
+    income_update: IncomeUpdate,
+    db: Session = Depends(get_db),
+    user_id: int = 1
+):
+    # Query or create income records
+    user_income = db.query(models.UserIncome).filter(
+        models.UserIncome.user_id == user_id,
+        models.UserIncome.year == income_update.year,
+        models.UserIncome.month == income_update.month
+    ).first()
     
-    if not user:
-        # Create user if doesn't exist
-        user = models.User(id=user_id, income=income_update.income)
-        db.add(user)
+    if not user_income:
+        # Create a new record
+        user_income = models.UserIncome(
+            user_id=user_id,
+            year=income_update.year,
+            month=income_update.month,
+            income=income_update.income
+        )
+        db.add(user_income)
     else:
-        # Update existing user's income
-        user.income = income_update.income
+        # Update an existing record
+        user_income.income = income_update.income
     
     db.commit()
-    db.refresh(user)
-    return user
+    db.refresh(user_income)
+    return user_income
