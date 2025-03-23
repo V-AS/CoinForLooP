@@ -5,4 +5,4 @@ __pycache__
 *.pyd
 venv
 .venv
-budget_app.db
+budget_app.dbbackend/budget_app.db
