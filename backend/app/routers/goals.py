@@ -17,7 +17,7 @@ class GoalBase(BaseModel):
     description: str
     target_amount: float
     deadline: datetime
-    goal_priority: int
+    goal_priority: int = 5
 
 class GoalCreate(GoalBase):
     pass

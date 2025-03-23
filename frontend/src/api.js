@@ -66,7 +66,12 @@ export const getGoals = async () => {
 
 export const createGoal = async (goalData) => {
   try {
-    const response = await api.post('/goal', goalData);
+    const response = await api.post('/goal', {
+      description: goalData.description,
+      target_amount: goalData.target_amount,
+      deadline: goalData.deadline,
+      goal_priority: goalData.goal_priority || 1 // Ensure we always have a priority
+    });
     return response.data;
   } catch (error) {
     console.error('Error creating goal:', error);

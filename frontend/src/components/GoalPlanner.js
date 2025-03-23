@@ -9,6 +9,7 @@ const GoalPlanner = () => {
   const [description, setDescription] = useState('');
   const [targetAmount, setTargetAmount] = useState('');
   const [deadline, setDeadline] = useState(new Date());
+  const [goalPriority, setGoalPriority] = useState(1); // Default priority
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -112,6 +113,7 @@ const GoalPlanner = () => {
       setDescription('');
       setTargetAmount('');
       setDeadline(new Date());
+      setGoalPriority(1); // Reset priority to default
 
       // Show success message
       setSuccess('Your goal has been created successfully!');
@@ -183,6 +185,22 @@ const GoalPlanner = () => {
               dateFormat="MM/dd/yyyy"
               minDate={new Date()}
             />
+          </div>
+
+          <div>
+            <label htmlFor="goalPriority">Priority (1-5)</label>
+            <select
+              id="goalPriority"
+              value={goalPriority}
+              onChange={(e) => setGoalPriority(parseInt(e.target.value))}
+              required
+            >
+              <option value="1">1 - Low Priority</option>
+              <option value="2">2 - Medium-Low Priority</option>
+              <option value="3">3 - Medium Priority</option>
+              <option value="4">4 - Medium-High Priority</option>
+              <option value="5">5 - High Priority</option>
+            </select>
           </div>
 
           <button
