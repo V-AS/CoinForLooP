@@ -1,5 +1,6 @@
 # backend/app/routers/summary.py
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import extract
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
 from datetime import datetime
