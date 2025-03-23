@@ -77,7 +77,7 @@ function App() {
         </main>
 
         <footer style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
-          <p>Budget App &copy; {new Date().getFullYear()}</p>
+          <p>CoinForLoop &copy; {new Date().getFullYear()}</p>
         </footer>
       </div>
     </Router>
