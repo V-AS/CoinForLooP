@@ -4,16 +4,26 @@
 
 :root {
   /* Warm color palette */
-  --primary: #FFA500;           /* Orange */
-  --primary-light: #FFD380;     /* Light Orange */
-  --secondary: #FFF9E6;         /* Soft Yellow */
-  --background: #FFFAF0;        /* Off-white */
-  --text: #333333;              /* Dark Gray */
-  --text-light: #666666;        /* Medium Gray */
-  --success: #4CAF50;           /* Green */
-  --danger: #F44336;            /* Red */
-  --warning: #FFC107;           /* Amber */
-  --info: #2196F3;              /* Blue */
+  --primary: #FFA500;
+  /* Orange */
+  --primary-light: #FFD380;
+  /* Light Orange */
+  --secondary: #FFF9E6;
+  /* Soft Yellow */
+  --background: #FFFAF0;
+  /* Off-white */
+  --text: #333333;
+  /* Dark Gray */
+  --text-light: #666666;
+  /* Medium Gray */
+  --success: #4CAF50;
+  /* Green */
+  --danger: #F44336;
+  /* Red */
+  --warning: #FFC107;
+  /* Amber */
+  --info: #2196F3;
+  /* Blue */
 }
 
 body {
@@ -77,8 +87,22 @@ body {
   color: var(--text);
 }
 
+.regenerate-btn {
+  color: gray;
+  padding: 0 0 3px 3px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center
+}
+
 /* Form elements */
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: 'Geist Sans', sans-serif;
   padding: 10px;
   border: 1px solid #ddd;

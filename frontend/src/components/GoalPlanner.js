@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { createGoal, getGoals, deleteGoal } from '../api';
+import { createGoal, getGoals, deleteGoal, regenerateAIPlan } from '../api';
 import { useLocation } from 'react-router-dom';
 
 const GoalPlanner = () => {
@@ -35,6 +35,53 @@ const GoalPlanner = () => {
 
     fetchGoals();
   }, []);
+
+  const handleRegenerateAIPlan = async (goalId) => {
+    try {
+      // Set loading state for the specific goal
+      const updatedGoals = goals.map(goal =>
+        goal.id === goalId
+          ? { ...goal, isRegenerating: true, ai_plan: "Generating new AI savings plan..." }
+          : goal
+      );
+      setGoals(updatedGoals);
+
+      // Call the API to regenerate the AI plan
+      const updatedGoal = await regenerateAIPlan(goalId);
+
+      // Update the goal in the state with the new AI plan
+      const finalGoals = goals.map(goal =>
+        goal.id === goalId
+          ? { ...updatedGoal, isRegenerating: false }
+          : goal
+      );
+      setGoals(finalGoals);
+
+      // Show success message
+      setSuccess('AI savings plan regenerated successfully');
+      setTimeout(() => {
+        setSuccess('');
+      }, 3000);
+
+    } catch (error) {
+      console.error('Error regenerating AI plan:', error);
+
+      // Revert the loading state
+      const revertedGoals = goals.map(goal =>
+        goal.id === goalId
+          ? { ...goal, isRegenerating: false }
+          : goal
+      );
+      setGoals(revertedGoals);
+
+      // Show error message
+      setError('Failed to regenerate AI plan. Please try again.');
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+    }
+  };
+
 
   useEffect(() => {
     if (location.hash === '#your-financial-goals' && financialGoalsRef.current) {
@@ -275,7 +322,19 @@ const GoalPlanner = () => {
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '15px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px' }}>
+                <button
+                  className="btn regenerate-btn"
+                  onClick={() => handleRegenerateAIPlan(goal.id)}
+                  disabled={goal.isRegenerating}
+                  title="Regenerate AI Plan"
+                >
+                  {goal.isRegenerating ? 
+                    <strong style={{ fontSize: '30px' }}>⟳</strong> : 
+                    <strong style={{ fontSize: '30px' }}>⟳</strong>
+                  }
+                </button>
+
                 <button
                   className="btn"
                   style={{

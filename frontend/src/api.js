@@ -84,6 +84,16 @@ export const deleteGoal = async (goalId) => {
   }
 };
 
+export const regenerateAIPlan = async (goalId) => {
+  try {
+    const response = await api.post(`/goal/${goalId}/regenerate-plan`);
+    return response.data;
+  } catch (error) {
+    console.error('Error regenerating AI plan:', error);
+    throw error;
+  }
+};
+
 // Summary
 export const generateSummary = async (summaryData) => {
   try {
