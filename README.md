@@ -56,6 +56,7 @@ source .venv/bin/activate  # On Windows: venv\Scripts\activate
 2. Install dependencies:
 
 ```bash
+pip install fastapi uvicorn sqlalchemy python-dotenv pydantic requests python-multipart
 pip install -r requirements.txt
 ```
 
