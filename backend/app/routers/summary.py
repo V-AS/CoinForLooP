@@ -46,7 +46,6 @@ def generate_summary(request: SummaryRequest, db: Session = Depends(get_db), use
     # Prepare transaction data
     transaction_data = [
         {
-            "id": t.id,
             "amount": t.amount,
             "category": t.category,
             "date": t.date.isoformat(),
