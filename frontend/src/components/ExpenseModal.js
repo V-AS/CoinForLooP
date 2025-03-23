@@ -132,7 +132,9 @@ const ExpenseModal = ({ onClose, onSave }) => {
               selected={date}
               onChange={setDate}
               dateFormat="MM/dd/yyyy"
-              maxDate={new Date()}
+              todayButton="Today"
+              highlightDates={[new Date()]}
+              calendarStartDay={0}
             />
           </div>
           

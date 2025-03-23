@@ -95,7 +95,7 @@ const AISummary = () => {
           </div>
         )}
         
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', marginTop: '20px' }}>
           <div style={{ flex: 1 }}>
             <label htmlFor="month">Month</label>
             <select

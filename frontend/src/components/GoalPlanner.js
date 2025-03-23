@@ -90,12 +90,15 @@ const GoalPlanner = () => {
       return;
     }
 
-    // Ensure deadline is in the future
-    if (deadline < new Date()) {
-      setError('Deadline must be in the future');
+    const today = new Date();
+    // Strip time portion for date comparison
+    const todayWithoutTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const deadlineWithoutTime = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate());
+
+    if (deadlineWithoutTime < todayWithoutTime) {
+      setError('Deadline must be today or in the future');
       return;
     }
-
     try {
       setIsSubmitting(true);
       setError('');
@@ -184,6 +187,9 @@ const GoalPlanner = () => {
               onChange={setDeadline}
               dateFormat="MM/dd/yyyy"
               minDate={new Date()}
+              todayButton="Today"
+              highlightDates={[new Date()]}
+              calendarStartDay={0}
             />
           </div>
 
