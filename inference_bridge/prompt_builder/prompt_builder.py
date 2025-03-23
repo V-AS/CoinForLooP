@@ -22,7 +22,7 @@ class PromptBuilder:
             deadline: Deadline date in ISO format
             user_income: Monthly income
             transactions: List of transaction data for previous 2 months
-            priority: Priority level of the goal (0-10, with 10 being highest)
+            priority: Priority level of the goal (0-5, with 5 being highest)
 
         Returns:
             Formatted prompt for the language model
@@ -44,7 +44,7 @@ class PromptBuilder:
         )
 
         # Format priority
-        priority_text = "Not specified" if priority == 0 else f"{priority}/10"
+        priority_text = "Not specified" if priority == 0 else f"{priority}/5"
 
         # Create the prompt
         prompt = f"""
