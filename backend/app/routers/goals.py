@@ -1,5 +1,5 @@
 # backend/app/routers/goals.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
@@ -102,3 +102,24 @@ def create_goal(goal: GoalCreate, db: Session = Depends(get_db), user_id: int = 
         db.commit()
     
     return db_goal
+
+@router.delete("/goal/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_goal(
+    goal_id: int,
+    db: Session = Depends(get_db),
+    user_id: int = 1 # Keep the test user handling consistent with the existing routes for now
+):
+
+    db_goal = db.query(models.Goal).filter(
+        models.Goal.id == goal_id,
+        models.Goal.user_id == user_id
+    ).first()
+
+    if not db_goal:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Goal not found"
+        )
+
+    db.delete(db_goal)
+    db.commit()
