@@ -95,8 +95,14 @@ def generate_summary(request: SummaryRequest, db: Session = Depends(get_db), use
         for t in transactions
     ]
     
-    # Get user income
-    user_income = user.income
+    # Get user current month income
+    user_income_record = db.query(models.UserIncome).filter(
+        models.UserIncome.user_id == user_id,
+        models.UserIncome.year == request.year,
+        models.UserIncome.month == request.month
+    ).first()
+
+    user_income = user_income_record.income if user_income_record else 0.0
     
     # Prepare data for inference bridge
     summary_data = {
