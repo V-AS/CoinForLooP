@@ -80,7 +80,8 @@ def create_goal(goal: GoalCreate, db: Session = Depends(get_db), user_id: int = 
             {
                 "amount": t.amount,
                 "category": t.category,
-                "date": t.date.isoformat()
+                "date": t.date.isoformat(),
+                "description": t.description
             }
             for t in transactions
         ]
