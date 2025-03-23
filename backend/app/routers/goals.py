@@ -17,6 +17,7 @@ class GoalBase(BaseModel):
     description: str
     target_amount: float
     deadline: datetime
+    goal_priority: int
 
 class GoalCreate(GoalBase):
     pass
@@ -41,6 +42,7 @@ def create_goal(goal: GoalCreate, db: Session = Depends(get_db), user_id: int = 
     # Create goal in database
     db_goal = models.Goal(
         user_id=user_id,
+        goal_priority=goal.goal_priority,
         description=goal.description,
         target_amount=goal.target_amount,
         deadline=goal.deadline
@@ -75,6 +77,7 @@ def create_goal(goal: GoalCreate, db: Session = Depends(get_db), user_id: int = 
         # Prepare data for inference bridge
         goal_data = {
             "goal_id": db_goal.id,
+            "goal_priority": db_goal.goal_priority,
             "goal_description": goal.description,
             "target_amount": goal.target_amount,
             "deadline": goal.deadline.isoformat(),
