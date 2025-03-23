@@ -52,7 +52,7 @@ def create_transaction(transaction: TransactionCreate, db: Session = Depends(get
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         # Create user if doesn't exist
-        user = models.User(id=user_id, income=0.0)
+        user = models.User(id=user_id)
         db.add(user)
     
     # Add and commit transaction
