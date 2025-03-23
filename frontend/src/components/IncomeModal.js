@@ -1,11 +1,26 @@
 // frontend/src/components/IncomeModal.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { updateIncome } from '../api';
 
-const IncomeModal = ({ onClose, onSave, currentIncome = 0 }) => {
+const IncomeModal = ({ onClose, onSave, currentIncome = 0, selectedMonth, selectedYear, availablePeriods }) => {
   const [income, setIncome] = useState(currentIncome.toString());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Check if the selected month/year is valid according to availablePeriods
+  useEffect(() => {
+    if (availablePeriods) {
+      const isValidYear = availablePeriods.years.includes(selectedYear);
+      const isValidMonth = isValidYear && 
+        availablePeriods.months[selectedYear] && 
+        availablePeriods.months[selectedYear].includes(selectedMonth);
+      
+      if (!isValidYear || !isValidMonth) {
+        setError(`Selected month (${selectedMonth}/${selectedYear}) is not available for setting income.`);
+        return;
+      }
+    }
+  }, [availablePeriods, selectedMonth, selectedYear]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,8 +34,11 @@ const IncomeModal = ({ onClose, onSave, currentIncome = 0 }) => {
     try {
       setIsSubmitting(true);
       
+      // Explicitly include month and year in the update request
       await updateIncome({
-        income: parseFloat(income)
+        income: parseFloat(income),
+        month: selectedMonth,
+        year: selectedYear
       });
       
       // Call onSave to refresh data in parent component
@@ -38,11 +56,20 @@ const IncomeModal = ({ onClose, onSave, currentIncome = 0 }) => {
     }
   };
 
+  // Format month name
+  const getMonthName = (monthIndex) => {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[monthIndex - 1];
+  };
+
   return (
     <div className="modal-backdrop">
       <div className="modal-content">
         <div className="modal-header">
-          <h2>Set Monthly Income</h2>
+          <h2>Set Monthly Income for {getMonthName(selectedMonth)} {selectedYear}</h2>
           <button 
             style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}
             onClick={onClose}
@@ -59,7 +86,7 @@ const IncomeModal = ({ onClose, onSave, currentIncome = 0 }) => {
         
         <form onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="income">Monthly Income ($)</label>
+            <label htmlFor="income">Income for {getMonthName(selectedMonth)} {selectedYear} ($)</label>
             <input
               id="income"
               type="number"
@@ -68,6 +95,7 @@ const IncomeModal = ({ onClose, onSave, currentIncome = 0 }) => {
               onChange={(e) => setIncome(e.target.value)}
               placeholder="0.00"
               required
+              disabled={!!error && error.includes('not available')}
             />
           </div>
           
@@ -83,7 +111,7 @@ const IncomeModal = ({ onClose, onSave, currentIncome = 0 }) => {
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={isSubmitting}
+              disabled={isSubmitting || (!!error && error.includes('not available'))}
             >
               {isSubmitting ? 'Saving...' : 'Save Income'}
             </button>

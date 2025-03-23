@@ -12,9 +12,17 @@ const api = axios.create({
 });
 
 // Transactions
-export const getTransactions = async () => {
+// Transactions
+export const getTransactions = async (month, year) => {
   try {
-    const response = await api.get('/transactions');
+    let url = '/transactions';
+    
+    // Add month and year parameters if provided
+    if (month && year) {
+      url += `?month=${month}&year=${year}`;
+    }
+    
+    const response = await api.get(url);
     return response.data;
   } catch (error) {
     console.error('Error fetching transactions:', error);
@@ -33,9 +41,17 @@ export const createTransaction = async (transactionData) => {
 };
 
 // Income
-export const getIncome = async () => {
+export const getIncome = async (month, year) => {
   try {
-    const response = await api.get('/income');
+    let url = '/income';
+    
+    // Always include month and year parameters when getting income
+    // This ensures we're getting the income for a specific month
+    if (month && year) {
+      url += `?month=${month}&year=${year}`;
+    }
+    
+    const response = await api.get(url);
     return response.data;
   } catch (error) {
     console.error('Error fetching income:', error);
@@ -45,6 +61,11 @@ export const getIncome = async () => {
 
 export const updateIncome = async (incomeData) => {
   try {
+    // Ensure month and year are included in the request
+    if (!incomeData.month || !incomeData.year) {
+      throw new Error('Month and year are required when updating income');
+    }
+    
     const response = await api.post('/income', incomeData);
     return response.data;
   } catch (error) {
@@ -96,6 +117,16 @@ export const generateSummary = async (summaryData) => {
     return response.data;
   } catch (error) {
     console.error('Error generating summary:', error);
+    throw error;
+  }
+};
+
+export const getAvailablePeriods = async () => {
+  try {
+    const response = await api.get('/available-periods');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching available periods:', error);
     throw error;
   }
 };
