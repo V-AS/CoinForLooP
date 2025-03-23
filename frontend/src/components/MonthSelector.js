@@ -27,7 +27,7 @@ const MonthSelector = ({ currentMonth, currentYear, onChange, availablePeriods }
 
   const years = [];
   const currentFullYear = new Date().getFullYear();
-  for (let i = currentFullYear - 2; i <= currentFullYear; i++) {
+  for (let i = currentFullYear - 10; i <= currentFullYear; i++) {
     years.push(i);
   }
 

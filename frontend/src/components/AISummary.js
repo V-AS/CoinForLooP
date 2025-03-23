@@ -41,7 +41,7 @@ const AISummary = ({ initialMonth, initialYear, availablePeriods }) => {
     } else {
       const years = [];
       const currentYear = new Date().getFullYear();
-      for (let i = currentYear - 2; i <= currentYear; i++) {
+      for (let i = currentYear - 10; i <= currentYear; i++) {
         years.push(i);
       }
       return years;
