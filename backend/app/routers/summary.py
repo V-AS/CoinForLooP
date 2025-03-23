@@ -24,6 +24,47 @@ class SummaryResponse(BaseModel):
     total_spending: float
     budget_status: str
 
+class AvailablePeriodsResponse(BaseModel):
+    years: List[int]
+    months: Dict[int, List[int]]  # Key: year, Value: list of months with data
+
+@router.get("/available-periods", response_model=AvailablePeriodsResponse)
+def get_available_periods(db: Session = Depends(get_db), user_id: int = 1):
+    """
+    Returns years that have at least one transaction record,
+    and for each year, which months have at least one transaction record.
+    """
+    # Get user
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get all years with transaction data
+    years_query = db.query(
+        extract('year', models.Transaction.date).label('year')
+    ).filter(
+        models.Transaction.user_id == user_id
+    ).distinct().order_by('year').all()
+    
+    years = [year[0] for year in years_query]
+    
+    # For each year, get all months with transaction data
+    months_by_year = {}
+    for year in years:
+        months_query = db.query(
+            extract('month', models.Transaction.date).label('month')
+        ).filter(
+            models.Transaction.user_id == user_id,
+            extract('year', models.Transaction.date) == year
+        ).distinct().order_by('month').all()
+        
+        months_by_year[year] = [month[0] for month in months_query]
+    
+    return {
+        "years": years,
+        "months": months_by_year
+    }
+
 # POST /api/summary
 @router.post("/summary", response_model=SummaryResponse)
 def generate_summary(request: SummaryRequest, db: Session = Depends(get_db), user_id: int = 1):
