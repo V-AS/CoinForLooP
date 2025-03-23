@@ -35,6 +35,10 @@ const Dashboard = () => {
   const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [transactionsPerPage] = useState(5);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -128,6 +132,31 @@ const Dashboard = () => {
     }, goals[0])
   : null;
 
+  // Get current transactions for pagination
+  const indexOfLastTransaction = currentPage * transactionsPerPage;
+  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+  const currentTransactions = transactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
+  
+  // Calculate total pages
+  const totalPages = Math.ceil(transactions.length / transactionsPerPage);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  
+  // Go to next page
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+  
+  // Go to previous page
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   return (
     <div>
       <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -213,34 +242,92 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Recent Transactions */}
+          {/* Recent Transactions with Pagination */}
           <div className="card">
-            <h3>Recent Transactions</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3>Recent Transactions</h3>
+              <div>
+                {transactions.length > 0 && (
+                  <span style={{ color: 'var(--text-light)' }}>
+                    Showing {indexOfFirstTransaction + 1}-{Math.min(indexOfLastTransaction, transactions.length)} of {transactions.length}
+                  </span>
+                )}
+              </div>
+            </div>
+            
             {transactions.length > 0 ? (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #ddd' }}>Date</th>
-                    <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #ddd' }}>Category</th>
-                    <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #ddd' }}>Description</th>
-                    <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #ddd' }}>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transactions.slice(0, 5).map(transaction => (
-                    <tr key={transaction.id}>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>
-                        {new Date(transaction.date).toLocaleDateString()}
-                      </td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{transaction.category}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{transaction.description}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #ddd', textAlign: 'right' }}>
-                        ${transaction.amount.toFixed(2)}
-                      </td>
+              <>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #ddd' }}>Date</th>
+                      <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #ddd' }}>Category</th>
+                      <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #ddd' }}>Description</th>
+                      <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #ddd' }}>Amount</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {currentTransactions.map(transaction => (
+                      <tr key={transaction.id}>
+                        <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>
+                          {new Date(transaction.date).toLocaleDateString()}
+                        </td>
+                        <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{transaction.category}</td>
+                        <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{transaction.description}</td>
+                        <td style={{ padding: '8px', borderBottom: '1px solid #ddd', textAlign: 'right' }}>
+                          ${transaction.amount.toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                    <button 
+                      onClick={prevPage} 
+                      disabled={currentPage === 1}
+                      className="btn btn-secondary"
+                      style={{ 
+                        padding: '5px 10px', 
+                        marginRight: '10px',
+                        opacity: currentPage === 1 ? 0.5 : 1
+                      }}
+                    >
+                      &laquo; Prev
+                    </button>
+                    
+                    {Array.from({ length: totalPages }, (_, i) => (
+                      <button
+                        key={i + 1}
+                        onClick={() => paginate(i + 1)}
+                        className={`btn ${currentPage === i + 1 ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ 
+                          padding: '5px 10px', 
+                          margin: '0 5px',
+                          minWidth: '30px'
+                        }}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                    
+                    <button 
+                      onClick={nextPage} 
+                      disabled={currentPage === totalPages}
+                      className="btn btn-secondary"
+                      style={{ 
+                        padding: '5px 10px', 
+                        marginLeft: '10px',
+                        opacity: currentPage === totalPages ? 0.5 : 1
+                      }}
+                    >
+                      Next &raquo;
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <p>No transactions to display</p>
             )}
