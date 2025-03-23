@@ -77,11 +77,11 @@ const ExpenseModal = ({ onClose, onSave, selectedMonth, selectedYear, availableP
     }
     
     // Validate that the date is within the selected month/year
-    const selectedDate = new Date(date);
-    if (selectedDate.getMonth() + 1 !== selectedMonth || selectedDate.getFullYear() !== selectedYear) {
-      setError(`Date must be within ${selectedMonth}/${selectedYear}`);
-      return;
-    }
+    // const selectedDate = new Date(date);
+    // if (selectedDate.getMonth() + 1 !== selectedMonth || selectedDate.getFullYear() !== selectedYear) {
+    //   setError(`Date must be within ${selectedMonth}/${selectedYear}`);
+    //   return;
+    // }
     
     try {
       setIsSubmitting(true);
@@ -197,8 +197,8 @@ const ExpenseModal = ({ onClose, onSave, selectedMonth, selectedYear, availableP
               selected={date}
               onChange={setDate}
               dateFormat="MM/dd/yyyy"
-              minDate={getFirstDayOfMonth()}
-              maxDate={getLastDayOfMonth() > new Date() ? new Date() : getLastDayOfMonth()}
+              //minDate={getFirstDayOfMonth()}
+              //maxDate={getLastDayOfMonth() > new Date() ? new Date() : getLastDayOfMonth()}
               todayButton="Today"
               calendarStartDay={0}
               disabled={!!error && error.includes('not available')}
