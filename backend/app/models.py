@@ -1,5 +1,5 @@
 # backend/app/models.py
-from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
@@ -23,7 +23,7 @@ class UserIncome(Base):
     year = Column(Integer)
     month = Column(Integer)
     income = Column(Float, default=0.0)
-    
+
     __table_args__ = (
         UniqueConstraint("user_id", "year", "month", name="unique_user_income_per_month"),
     )

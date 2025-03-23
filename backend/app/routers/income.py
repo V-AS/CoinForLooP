@@ -1,7 +1,7 @@
 # backend/app/routers/income.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from ..database import get_db
 from .. import models
