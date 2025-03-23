@@ -114,7 +114,6 @@ def generate_summary(request: SummaryRequest, db: Session = Depends(get_db), use
             f"{inference_url}/monthly_summary",
             json=summary_data
         )
-        
         if response.status_code == 200:
             return response.json()
         else:

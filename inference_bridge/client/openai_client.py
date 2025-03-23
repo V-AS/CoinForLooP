@@ -44,7 +44,7 @@ class OpenAIClient:
             logger.error(f"Error generating text with OpenAI: {e}")
             raise
 
-    def generate_text(self, prompt):
+    def generate_text(self, prompt, response_format):
         """
         Generate text using the OpenAI API (synchronous version)
         
@@ -57,21 +57,21 @@ class OpenAIClient:
         try:
             logger.info(f"Sending prompt to OpenAI (length: {len(prompt)} chars)")
             
-            response = self.client.chat.completions.create(
+            response = self.client.beta.chat.completions.parse(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": "You are a helpful financial assistant."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.5,
-                max_tokens=1000
+                max_tokens=1000,
+                response_format = response_format
             )
             
             content = response.choices[0].message.content
-            logger.info(f"Received response from OpenAI (length: {len(content)} chars)")
+            
             return content
             
         except Exception as e:
-            logger.error(f"Error generating text with OpenAI: {e}")
             # Return a fallback response instead of crashing
-            return "I'm unable to generate personalized financial advice at the moment. Please try again later."
+            return f"Error generating text with OpenAI: {e}"
