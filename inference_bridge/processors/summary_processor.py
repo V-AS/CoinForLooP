@@ -4,7 +4,9 @@ from inference_bridge.client.openai_client import OpenAIClient
 from inference_bridge.prompt_builder.prompt_builder import PromptBuilder
 from inference_bridge.data.request.summary_request import SummaryRequest
 from inference_bridge.data.response.summary_response import SummaryResponse
+from inference_bridge.data.response.summary_response import SummaryGenResponse
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -49,8 +51,9 @@ class SummaryProcessor:
             )
             
             # Generate AI response
-            summary = self.openai_client.generate_text(prompt)
-            
+            summary = self.openai_client.generate_text(prompt, response_format=SummaryGenResponse)
+            summary = json.loads(summary)
+            summary = summary["summary"]
             # Return the response
             return SummaryResponse(
                 summary=summary,

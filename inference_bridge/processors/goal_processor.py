@@ -12,7 +12,7 @@ class GoalProcessor:
     def __init__(self):
         self.openai_client = OpenAIClient()
     
-    async def process(self, request: GoalPlanningRequest) -> GoalPlanningResponse:
+    async def process(self, request: GoalPlanningRequest):
         """
         Process a goal planning request
         
@@ -29,30 +29,14 @@ class GoalProcessor:
                 target_amount=request.target_amount,
                 deadline=request.deadline,
                 user_income=request.user_income,
-                avg_spending=request.avg_spending
+                transactions=request.transactions,
+                priority=request.priority
             )
             
             # Generate AI response
-            plan = self.openai_client.generate_text(prompt)
-            
-            # Calculate if goal is realistic
-            deadline_date = datetime.fromisoformat(request.deadline.replace('Z', '+00:00'))
-            current_date = datetime.now()
-            
-            months_until_deadline = (
-                (deadline_date.year - current_date.year) * 12 + 
-                deadline_date.month - current_date.month
-            )
-            
-            monthly_savings_needed = request.target_amount / max(1, months_until_deadline)
-            available_monthly_savings = request.user_income - request.avg_spending
-            is_realistic = available_monthly_savings >= monthly_savings_needed
-            
-            # Return the response
-            return GoalPlanningResponse(
-                plan=plan,
-                is_realistic=is_realistic
-            )
+            plan = self.openai_client.generate_text(prompt,response_format = GoalPlanningResponse)
+
+            return plan
         
         except Exception as e:
             logger.error(f"Error processing goal planning request: {e}")
