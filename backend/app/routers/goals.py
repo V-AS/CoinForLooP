@@ -62,8 +62,18 @@ def create_goal(goal: GoalCreate, db: Session = Depends(get_db), user_id: int = 
     
     # Call inference bridge to generate AI plan
     try:
-        # Get user income and average spending
-        user_income = user.income
+        # Get user current month income
+        current_date = datetime.now()
+        current_year = current_date.year
+        current_month = current_date.month
+
+        user_income_record = db.query(models.UserIncome).filter(
+            models.UserIncome.user_id == user_id,
+            models.UserIncome.year == current_year,
+            models.UserIncome.month == current_month
+        ).first()
+
+        user_income = user_income_record.income if user_income_record else 0.0
 
         # Get the transaction records for the last 2 months
         end_date = datetime.now()
