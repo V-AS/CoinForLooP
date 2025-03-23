@@ -35,6 +35,7 @@ class Goal(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     description = Column(String)
     target_amount = Column(Float)
+    goal_priority = Column(Integer)
     deadline = Column(DateTime)
     ai_plan = Column(String, nullable=True)  # Store AI-generated savings plan
     
