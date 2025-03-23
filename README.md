@@ -1,5 +1,8 @@
 # CoinForLooP - AI-Powered Personal Finance Manager
 
+ - [GenAI Genesis 2025](https://genaigenesis.ca) Project
+
+
 CoinForLooP is an intelligent personal finance management system that helps users track expenses, set financial goals, and receive AI-powered insights about their spending habits. The application uses AI to provide personalized financial advice and savings plans.
 
 ## Features
